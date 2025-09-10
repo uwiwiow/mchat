@@ -1,30 +1,22 @@
 #include <raylib.h>
-
-void getCode(int code, char *res[5]) {
-
-    int val = 1;
-    for(int i = 0; i < 5; i++) {
-        if (code & val )
-            res[i] = ".";
-        else
-            res[i] = "-";
-        val *= 2;
-    }
-}
+#include <string.h>
+#include "morseBinaryTree.h"
 
 int main(void) {
+
+    morseNode* root = createNode();
+    buildMorseTree(root);
 
     SetTraceLogLevel(LOG_WARNING);
     InitWindow(800, 600, "morse chat");
 
     char text[50] = "";
+    int textIndex = 0;
 
     // lsb
     int code = 0;
     int val = 1;
     int index = 0;
-
-    char dcode[5] = {};
 
     while(!WindowShouldClose()) {
 
@@ -37,35 +29,47 @@ int main(void) {
             break;
             case KEY_K:
                 if (index >= 5) break;
-                code = code & !val;
+                code = code | !val;
                 val *= 2;
                 index++;
             break;
             case KEY_SPACE:
+                if (textIndex < 50) {
+                    text[textIndex] = searchMorse(root, code, index);
+                    textIndex++;
+                }
                 index = 0;
                 code = 0;
                 val = 1;
+            break;
+            case KEY_R:
+                textIndex = 0;
+                memset(text, 0, sizeof(text));
+            break;
             default: ;
         }
+
 
         BeginDrawing();
 
         ClearBackground(WHITE);
 
-        // for(int i = 0; i <= index; i++) {
-        //     DrawText(c[i]? "." : "-", 20*i +20, 20, 24, BLACK);
-        // }
-
-        getCode(code, &dcode);
         DrawText(TextFormat("%d %d %d", index, code, val), 50, 50, 24, RED);
-        DrawText(TextFormat("%c %c %c %c %c", dcode[0], dcode[1], dcode[2], dcode[3], dcode[4]), 50, 50, 24, RED);
 
+        for (int i = 0; i < index; i++) {
+            const int bit = (code >> i) & 1;
+            DrawText(bit? "." : "-", 250 + i*50, 50, 48, RED);
+        }
+
+        DrawText(text, 50, 100, 48, BLACK);
 
         EndDrawing();
 
     }
 
     CloseWindow();
+
+    freeTree(root);
 
     return 0;
 }

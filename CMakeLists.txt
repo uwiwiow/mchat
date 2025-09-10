@@ -3,7 +3,10 @@ project(mchat C)
 
 set(CMAKE_C_STANDARD 23)
 
-add_executable(mchat main.c)
+add_executable(mchat main.c
+        morseBinaryTree.c
+        morseBinaryTree.h
+)
 
 find_package(raylib REQUIRED)
 
